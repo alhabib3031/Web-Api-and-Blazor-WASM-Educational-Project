@@ -1,0 +1,29 @@
+[*]
+
+# charset = utf-8-bom
+indent_size = 4
+indent_style = space
+insert_final_newline = false
+max_line_length = 100
+tab_width = 4
+end_of_line = lf
+
+[*.razor]
+resharper_html_attribute_style = first_attribute_on_single_line
+resharper_html_attribute_indent = align
+resharper_html_space_before_self_closing = true
+
+
+[*.html]
+resharper_html_attribute_style = first_attribute_on_single_line
+resharper_html_attribute_indent = align
+resharper_html_space_before_self_closing = true
+
+[*.cs]
+# attributes
+resharper_place_attribute_on_same_line = never
+
+# fluent call formatting
+resharper_csharp_wrap_after_dot = true
+resharper_csharp_wrap_chained_method_calls = chop_always
+resharper_csharp_wrap_before_first_method_call = true

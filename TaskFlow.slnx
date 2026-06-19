@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="TaskFlow/TaskFlow.csproj" />
+  <Project Path="WasmUI/WasmUI.csproj" />
+</Solution>
