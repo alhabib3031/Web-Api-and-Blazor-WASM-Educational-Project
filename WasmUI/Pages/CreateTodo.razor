@@ -1,0 +1,75 @@
+
+@page "/create-todo"
+
+@inject ITodoClientService _todoClientService 
+@inject NavigationManager NavigationManager
+
+<div class="container mt-4" style="max-width: 500px;">
+    <h3>Create New Todo Item</h3>
+
+    @if (isSuccess)
+    {
+        <div class="alert alert-success">
+            🎉 Todo item created successfully!
+        </div>
+    }
+
+    <EditForm Model="@newTodo" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary class="text-danger" />
+
+        <div class="form-group mb-3">
+            <label for="title" class="form-label">Title:</label>
+            <InputText id="title" @bind-Value="newTodo.Title" class="form-control" placeholder="Enter title..." required />
+        </div>
+
+        <div class="form-check mb-3">
+            <InputCheckbox id="isComplete" @bind-Value="newTodo.IsComplete" class="form-check-input" />
+            <label for="isComplete" class="form-check-label">Is Completed?</label>
+        </div>
+
+        <button type="submit" class="btn btn-success" disabled="@isSubmitting">
+            @if (isSubmitting)
+            {
+                <span>Saving...</span>
+            }
+            else
+            {
+                <span>Create Todo</span>
+            }
+        </button>
+    </EditForm>
+</div>
+
+@code {
+    private TodoItemDTO newTodo = new TodoItemDTO();
+    
+    private bool isSubmitting = false;
+    private bool isSuccess = false;
+
+    private async Task HandleSubmit()
+    {
+        isSubmitting = true;
+        isSuccess = false;
+
+        try
+        {
+            await _todoClientService.CreateAsync(newTodo);
+            
+            isSuccess = true;
+            
+            newTodo = new TodoItemDTO(); 
+
+            await Task.Delay(2000);
+            NavigationManager.NavigateTo("/get-all-todos");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error creating todo: {ex.Message}");
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+}

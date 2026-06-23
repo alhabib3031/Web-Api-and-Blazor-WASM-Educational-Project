@@ -1,0 +1,44 @@
+@page "/get-todo-by-id"
+
+@inject ITodoClientService _todoClientService 
+
+
+<div class="container mt-4">
+    <h3> Get By (ID)</h3>
+    
+    <form @onsubmit="Submit">
+        <div class="form-group mb-3">
+            <label for="userId">Enter an (ID):</label>
+            <input type="number" id="userId" name="id" @bind="targetId" class="form-control" placeholder="Ex: 5" required />
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Get</button>
+    </form>
+
+    <hr />
+
+    @if (todo != null)
+    {
+        <ul>
+            <li>@todo.Title - @(todo.IsComplete ? "✅" : "❌") </li>
+        </ul>
+    }
+    else if (hasSearched)
+    {
+        <p><em>No todo found with this ID, or still loading...</em></p>
+    }
+</div>
+
+@code {
+    private int targetId; 
+    
+    private TodoItemDTO? todo; 
+    
+    private bool hasSearched = false;
+
+    private async Task Submit() 
+    {
+        hasSearched = true;
+        todo = await _todoClientService.GetTodosAsync(targetId); 
+    }
+}

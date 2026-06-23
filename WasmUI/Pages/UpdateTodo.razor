@@ -1,0 +1,86 @@
+@page "/update-todo"
+
+@inject NavigationManager NavigationManager
+@inject ITodoClientService _todoClientService 
+
+<div class="container mt-4" style="max-width: 500px;">
+    <h3>Update Todo Item</h3>
+
+    @if (!string.IsNullOrEmpty(statusMessage))
+    {
+        <div class="alert alert-info mt-3">@statusMessage</div>
+    }
+
+    <div class="card p-3 mb-4 bg-light">
+        <h5>1. Load Item by ID</h5>
+        <div class="input-group">
+            <input type="number" @bind="searchId" class="form-control" placeholder="Enter ID to edit..." />
+            <button class="btn btn-primary" @onclick="FetchTodo" disabled="@isLoading">Load</button>
+        </div>
+    </div>
+
+    @if (todoToEdit != null)
+    {
+        <div class="card p-3">
+            <h5>2. Edit Details</h5>
+            <EditForm Model="@todoToEdit" OnValidSubmit="HandleUpdate">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="text-danger" />
+
+                <div class="form-group mb-3">
+                    <label for="editTitle" class="form-label">Title:</label>
+                    <InputText id="editTitle" @bind-Value="todoToEdit.Title" class="form-control" required />
+                </div>
+
+                <div class="form-check mb-3">
+                    <InputCheckbox id="editIsComplete" @bind-Value="todoToEdit.IsComplete" class="form-check-input" />
+                    <label for="editIsComplete" class="form-check-label">Is Completed?</label>
+                </div>
+
+                <button type="submit" class="btn btn-warning w-100" disabled="@isProcessing">
+                    @(isProcessing ? "Updating..." : "Save Changes")
+                </button>
+            </EditForm>
+        </div>
+    }
+</div>
+
+@code {
+    private int searchId;
+    private TodoItemDTO? todoToEdit;
+    private bool isLoading = false;
+    private bool isProcessing = false;
+    private string statusMessage = "";
+
+    private async Task FetchTodo()
+    {
+        if (searchId <= 0) { statusMessage = "❌ Please enter a valid ID."; return; }
+        isLoading = true;
+        statusMessage = "Loading...";
+        todoToEdit = null;
+
+        try
+        {
+            todoToEdit = await _todoClientService.GetTodosAsync(searchId);
+            statusMessage = todoToEdit == null ? "❌ Item not found." : "✅ Item loaded successfully.";
+        }
+        catch (Exception ex) { statusMessage = $"❌ Error: {ex.Message}"; }
+        finally { isLoading = false; }
+    }
+
+    private async Task HandleUpdate()
+    {
+        isProcessing = true;
+        try
+        {
+            await _todoClientService.UpdateAsync(searchId, todoToEdit!);
+            statusMessage = "🎉 Todo item updated successfully!";
+
+            await Task.Delay(2000);
+            NavigationManager.NavigateTo("/get-all-todos");
+
+        }
+        catch (Exception ex) { statusMessage = $"❌ Error updating: {ex.Message}"; }
+        finally { isProcessing = false; }
+    }
+}

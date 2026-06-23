@@ -1,0 +1,92 @@
+@page "/delete-todo"
+
+@inject NavigationManager NavigationManager
+@inject ITodoClientService _todoClientService 
+
+<div class="container mt-4" style="max-width: 500px;">
+    <h3>Delete Todo Item</h3>
+
+    @if (!string.IsNullOrEmpty(statusMessage))
+    {
+        <div class="alert alert-info mt-3">@statusMessage</div>
+    }
+
+    <div class="card p-4 mt-3">
+        <div class="form-group mb-4">
+            <label for="deleteId" class="form-label">Enter Todo ID to Delete:</label>
+            <input type="number" id="deleteId" @bind="targetId" class="form-control" placeholder="Ex: 10" />
+        </div>
+
+        @if (!showConfirm)
+        {
+            <button class="btn btn-danger w-100" @onclick="PrepareDelete" disabled="@isDeleting">
+                Delete Item
+            </button>
+        }
+        else
+        {
+            <div class="alert alert-danger text-center">
+                <h6>Are you sure you want to delete item #@targetId?</h6>
+                <div class="d-flex justify-content-around mt-3">
+                    <button class="btn btn-danger" @onclick="ConfirmDelete" disabled="@isDeleting">
+                        @(isDeleting ? "Deleting..." : "Yes, Delete")
+                    </button>
+                    <button class="btn btn-secondary" @onclick="CancelDelete" disabled="@isDeleting">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private int targetId;
+    private bool showConfirm = false;
+    private bool isDeleting = false;
+    private string statusMessage = "";
+
+    private void PrepareDelete()
+    {
+        if (targetId <= 0)
+        {
+            statusMessage = "❌ Please enter a valid ID.";
+            return;
+        }
+        statusMessage = "";
+        showConfirm = true; 
+    }
+
+    private async Task ConfirmDelete()
+    {
+        isDeleting = true;
+        statusMessage = "Deleting item...";
+
+        try
+        {
+            await _todoClientService.DeleteAsync(targetId);
+            
+            statusMessage = $"🗑️ Todo item #{targetId} deleted successfully!";
+            targetId = 0;
+            showConfirm = false;
+
+            await Task.Delay(2000);
+            NavigationManager.NavigateTo("/get-all-todos");
+
+        }
+        catch (Exception ex)
+        {
+            statusMessage = $"❌ Error deleting item: {ex.Message}";
+        }
+        finally
+        {
+            isDeleting = false;
+        }
+    }
+
+    private void CancelDelete()
+    {
+        showConfirm = false;
+        statusMessage = "Delete canceled.";
+    }
+}

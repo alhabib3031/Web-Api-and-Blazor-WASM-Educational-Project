@@ -1,6 +1,6 @@
-@page "/todos"
+@page "/get-all-todos"
 
-@inject HttpClient Http
+@inject ITodoClientService _todoClientService 
 <h3>Task Flow</h3>
 
 @if (todos == null)
@@ -12,7 +12,7 @@ else
 <ul>
     @foreach (var todo in todos)
     {
-    <li>@todo.Title - @(todo.IsComplete ? "✅" : "❌")</li>
+    <li>@todo.Id - @todo.Title - @(todo.IsComplete ? "✅" : "❌")</li>
     }
 </ul>
 }
@@ -22,14 +22,6 @@ private List<TodoItemDTO>? todos;
 
     protected override async Task OnInitializedAsync()
     {
-        var response = await Http.GetAsync("task");
-
-        Console.WriteLine(response.StatusCode);
-
-        var json = await response.Content.ReadAsStringAsync();
-
-        Console.WriteLine(json);
-
-        todos = await response.Content.ReadFromJsonAsync<List<TodoItemDTO>>();
+        todos = await _todoClientService.GetTodosAsync();
     }
 }
