@@ -1,8 +1,8 @@
-
 @page "/create-todo"
 
 @inject ITodoClientService _todoClientService 
 @inject NavigationManager NavigationManager
+@attribute [Authorize]
 
 <div class="container mt-4" style="max-width: 500px;">
     <h3>Create New Todo Item</h3>

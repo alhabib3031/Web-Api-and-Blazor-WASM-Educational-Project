@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.EntityFrameworkCore;
 using TaskFlow.Data;
 using TaskFlow.EndPoints;
@@ -16,19 +18,35 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString)
 );
 builder.Services.AddScoped<ITaskService, TaskService>();
-builder.Services.AddScoped<TaskService>();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddAuthorization();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(
-        "Blazor",
+        "BlazorCors",
         policy =>
         {
-            policy.WithOrigins("http://localhost:5047").AllowAnyHeader().AllowAnyMethod();
+            policy
+                .WithOrigins("http://localhost:5047")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
         }
     );
 });
+
+builder
+    .Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    })
+    .AddCookie()
+    .AddGoogle(options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+    });
 
 var app = builder.Build();
 
@@ -42,8 +60,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors("Blazor");
+app.UseCors("BlazorCors");
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapTaskEndpoints();
+app.MapAuthEndpoints();
 
 app.Run();

@@ -1,4 +1,5 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@attribute [AllowAnonymous]
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">WasmUI</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
@@ -9,46 +10,52 @@
 
 <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
     <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="get-all-todos">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> All Todos
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="get-todo-by-id">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Get Todo By Id
-            </NavLink>
-        </div>
-         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="create-todo">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Create Todo
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="update-todo">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Update Todo
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="delete-todo">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Delete Todo
-            </NavLink>
-        </div>
+    <AuthorizeView>
+        <Authorized>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                    <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="get-all-todos">
+                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> All Todos
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="get-todo-by-id">
+                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Get Todo By Id
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="create-todo">
+                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Create Todo
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="update-todo">
+                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Update Todo
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="delete-todo">
+                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Delete Todo
+                </NavLink>
+            </div>
+        </Authorized>
+        <NotAuthorized>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                    <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="login">
+                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Login
+                </NavLink>
+            </div>
+        </NotAuthorized>
+    </AuthorizeView>
 
 
     </nav>

@@ -1,6 +1,9 @@
 @page "/get-all-todos"
 
 @inject ITodoClientService _todoClientService 
+@attribute [Authorize]
+
+
 <h3>Task Flow</h3>
 
 @if (todos == null)

@@ -1,0 +1,24 @@
+@page "/login-success"
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject AuthenticationStateProvider AuthStateProvider
+@using Microsoft.AspNetCore.WebUtilities
+@using WasmUI.Auth
+@inject NavigationManager NavManager
+
+<h3>Logins...</h3>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var uri = NavManager.ToAbsoluteUri(NavManager.Uri);
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("token", out var token))
+        {
+            await LocalStorage.SetItemAsync("authToken", token.ToString());
+            
+            var customProvider = (CustomAuthStateProvider)AuthStateProvider;
+            customProvider.NotifyUserLogin(token.ToString());
+
+            NavManager.NavigateTo("/");
+        }
+    }
+}
