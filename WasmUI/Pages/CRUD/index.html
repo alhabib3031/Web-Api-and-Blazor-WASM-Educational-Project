@@ -1,0 +1,27 @@
+<div class="container mt-4" style="max-width: 500px;">
+    <h3>Delete Todo Item</h3>
+
+    <div class="alert alert-info mt-3">@statusMessage</div>
+
+    <div class="card p-4 mt-3">
+        <div class="form-group mb-4">
+            <label for="deleteId" class="form-label">Enter Todo ID to Delete:</label>
+            <input type="number" id="deleteId" @bind="targetId" class="form-control" placeholder="Ex: 10" />
+        </div>
+
+        <button class="btn btn-danger w-100" @onclick="PrepareDelete" disabled="@isDeleting">
+            Delete Item
+        </button>
+        <div class="alert alert-danger text-center">
+            <h6>Are you sure you want to delete item #@targetId?</h6>
+            <div class="d-flex justify-content-around mt-3">
+                <button class="btn btn-danger" @onclick="ConfirmDelete" disabled="@isDeleting">
+                    @(isDeleting ? "Deleting..." : "Yes, Delete")
+                </button>
+                <button class="btn btn-secondary" @onclick="CancelDelete" disabled="@isDeleting">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

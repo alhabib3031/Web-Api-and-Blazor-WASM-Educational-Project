@@ -1,4 +1,8 @@
-﻿@attribute [AllowAnonymous]
+﻿@using WasmUI.Auth
+@attribute [AllowAnonymous]
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">WasmUI</a>
@@ -42,6 +46,11 @@
                     <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Delete Todo
                 </NavLink>
             </div>
+            <div class="nav-item px-3 mt-4">
+                <button class="nav-link btn btn-link text-danger w-100 text-start" @onclick="HandleLogout">
+                    <span class="bi bi-box-arrow-left-nav-menu" aria-hidden="true"></span> Logout
+                </button>
+            </div>
         </Authorized>
         <NotAuthorized>
             <div class="nav-item px-3">
@@ -69,5 +78,14 @@
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    private async Task HandleLogout()
+    {
+        var customProvider = (CustomAuthStateProvider)AuthStateProvider;
+
+        await customProvider.NotifyUserLogout();
+
+        NavigationManager.NavigateTo("/login");
     }
 }

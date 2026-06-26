@@ -16,6 +16,7 @@ public static class AuthEndpoints
     public static void MapAuthEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/auth");
+
         group.MapGet(
             "/login-google",
             (HttpContext context) =>
@@ -25,7 +26,8 @@ public static class AuthEndpoints
                     RedirectUri = "/api/auth/google-response",
                 };
 
-                return Results.Challenge(props, new[] { GoogleDefaults.AuthenticationScheme });
+                // new[] { GoogleDefaults.AuthenticationScheme } is same same [GoogleDefaults.AuthenticationScheme]
+                return Results.Challenge(props, [GoogleDefaults.AuthenticationScheme]);
             }
         );
 
@@ -80,7 +82,7 @@ public static class AuthEndpoints
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(userClaims),
-            Expires = DateTime.UtcNow.AddDays(7), // صالحة لـ 7 أيام
+            Expires = DateTime.UtcNow.AddDays(7),
             SigningCredentials = signingCredentials,
             Issuer = config["Authentication:Jwt:Issuer"],
             Audience = config["Authentication:Jwt:Audience"],

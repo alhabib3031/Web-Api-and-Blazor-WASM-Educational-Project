@@ -81,3 +81,4 @@ public class CustomAuthStateProvider : AuthenticationStateProvider
         return Convert.FromBase64String(base64);
     }
 }
+
