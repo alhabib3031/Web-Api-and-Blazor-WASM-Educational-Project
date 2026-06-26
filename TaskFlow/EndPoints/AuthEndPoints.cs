@@ -52,7 +52,7 @@ public static class AuthEndpoints
 
                 if (user == null)
                 {
-                    user = new User { Email = email, FullName = name ?? "Google User" };
+                    user = User.Create(Email: email, FullName: name ?? "Google User");
 
                     db.Users.Add(user);
                     await db.SaveChangesAsync();
