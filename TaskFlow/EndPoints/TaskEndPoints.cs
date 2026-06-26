@@ -29,7 +29,7 @@ public static class TaskEndPoints
 
         group.MapPost(
             "",
-            async (TaskItem item, ITaskService service) =>
+            async (Todo item, ITaskService service) =>
             {
                 await service.Create(item);
 
@@ -39,7 +39,7 @@ public static class TaskEndPoints
 
         group.MapPut(
             "/{id}",
-            async (int id, TaskItem item, ITaskService service) =>
+            async (int id, Todo item, ITaskService service) =>
             {
                 await service.Update(id, item);
 
@@ -49,7 +49,7 @@ public static class TaskEndPoints
 
         group.MapPatch(
             "/{id}",
-            async (int id, TaskItem item, ITaskService service) =>
+            async (int id, Todo item, ITaskService service) =>
             {
                 await service.UpdatePatch(id, item);
 

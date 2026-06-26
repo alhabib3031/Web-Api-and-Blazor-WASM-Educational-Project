@@ -14,15 +14,15 @@ public class TaskService : ITaskService
         _context = context;
     }
 
-    public async Task<List<TaskItem>> GetAll()
+    public async Task<List<Todo>> GetAll()
     {
-        var items = await _context.Tasks.ToListAsync();
+        var items = await _context.Todos.ToListAsync();
         return items;
     }
 
-    public async Task<TaskItem?> GetById(int Id)
+    public async Task<Todo?> GetById(int Id)
     {
-        var item = await _context.FindAsync<TaskItem>(Id);
+        var item = await _context.FindAsync<Todo>(Id);
 
         if (item is not null)
         {
@@ -32,16 +32,16 @@ public class TaskService : ITaskService
         return null;
     }
 
-    public async Task Create(TaskItem Item)
+    public async Task Create(Todo Item)
     {
         _context.Add(Item);
 
         await _context.SaveChangesAsync();
     }
 
-    public async Task Update(int Id, TaskItem Item)
+    public async Task Update(int Id, Todo Item)
     {
-        var item = await _context.FindAsync<TaskItem>(Id);
+        var item = await _context.FindAsync<Todo>(Id);
 
         if (item is not null)
         {
@@ -54,9 +54,9 @@ public class TaskService : ITaskService
             Console.WriteLine("this is invalid id");
     }
 
-    public async Task UpdatePatch(int Id, TaskItem Item)
+    public async Task UpdatePatch(int Id, Todo Item)
     {
-        var item = await _context.FindAsync<TaskItem>(Id);
+        var item = await _context.FindAsync<Todo>(Id);
 
         if (item is not null)
         {
@@ -74,7 +74,7 @@ public class TaskService : ITaskService
 
     public async Task<bool> Delete(int Id)
     {
-        var item = await _context.FindAsync<TaskItem>(Id);
+        var item = await _context.FindAsync<Todo>(Id);
 
         if (item is not null)
         {

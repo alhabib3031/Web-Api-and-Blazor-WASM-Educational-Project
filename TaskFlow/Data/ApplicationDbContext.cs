@@ -8,6 +8,6 @@ public class ApplicationDbContext : DbContext
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options) { }
 
-    public DbSet<TaskItem> Tasks => Set<TaskItem>();
+    public DbSet<Todo> Todos => Set<Todo>();
     public DbSet<User> Users => Set<User>();
 }
