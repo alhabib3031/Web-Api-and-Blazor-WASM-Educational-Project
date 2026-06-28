@@ -9,6 +9,8 @@ public class User
 
     public List<Todo>? Todos { get; private set; }
 
+    public User() { }
+
     private User(string Email, string FullName)
     {
         this.Email = Email;

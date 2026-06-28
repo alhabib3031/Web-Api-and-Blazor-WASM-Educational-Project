@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using TaskFlow.Entity;
 using TaskFlow.Services.Interfaces;
 
@@ -7,7 +8,11 @@ public static class TaskEndPoints
 {
     public static WebApplication MapTaskEndpoints(this WebApplication app)
     {
-        var group = app.MapGroup("/task");
+        // old code: RequireAuthorization was only on GetAll and Create endpoints.
+        // GetById, Update, UpdatePatch, Delete had NO authorization check at all.
+        // The problem: Any unauthenticated request could read, modify, or delete any todo.
+        // Fix: Apply RequireAuthorization to the entire group so ALL task endpoints require auth.
+        var group = app.MapGroup("/task").RequireAuthorization();
 
         group.MapGet(
             "",

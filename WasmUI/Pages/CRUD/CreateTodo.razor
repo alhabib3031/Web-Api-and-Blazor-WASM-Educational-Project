@@ -28,6 +28,12 @@
             <label for="isComplete" class="form-check-label">Is Completed?</label>
         </div>
 
+        <div class="form-group mb-3">
+            <label for="endOfDate" class="form-label">End Of Date:</label>
+            <InputDate id="endOfDate" @bind-Value="newTodo.EndOfDate" Type="InputDateType.Date" class="form-control" />
+        </div>
+
+
         <button type="submit" class="btn btn-success" disabled="@isSubmitting">
             @if (isSubmitting)
             {
@@ -42,7 +48,7 @@
 </div>
 
 @code {
-    private TodoItemDTO newTodo = new TodoItemDTO();
+    private TodoDTO newTodo = new TodoDTO();
     
     private bool isSubmitting = false;
     private bool isSuccess = false;
@@ -58,7 +64,8 @@
             
             isSuccess = true;
             
-            newTodo = new TodoItemDTO(); 
+            newTodo = new TodoDTO(); 
+            StateHasChanged();
 
             await Task.Delay(2000);
             NavigationManager.NavigateTo("/get-all-todos");

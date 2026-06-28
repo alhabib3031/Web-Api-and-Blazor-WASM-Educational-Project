@@ -3,17 +3,19 @@ namespace TaskFlow.Entity;
 public class Todo
 {
     public int Id { get; private set; }
-    public string Title { get; set; }
+    public string Title { get; set; } = string.Empty;
     public string? Description { get; set; }
     public DateTime EndOfDate { get; set; }
-    public bool? IsComplete { get; set; }
+    public bool IsComplete { get; set; }
 
     public int UserId { get; set; }
 
     public User User { get; set; } = null!;
 
+    public Todo() { }
+
     // Id is auto Genarated in DB
-    private Todo(string Title, string? Description, DateTime EndOfDate, bool? IsComplete)
+    private Todo(string Title, string? Description, DateTime EndOfDate, bool IsComplete)
     {
         this.Title = Title;
         this.Description = Description;
@@ -25,7 +27,7 @@ public class Todo
         string title,
         string? description,
         DateTime endOfDate,
-        bool? isComplete
+        bool isComplete
     )
     {
         if (string.IsNullOrWhiteSpace(description))
