@@ -29,7 +29,7 @@ public class User
         string title,
         string? description,
         DateTime endOfDate,
-        bool? isComplete
+        bool isComplete
     )
     {
         if (string.IsNullOrWhiteSpace(description))

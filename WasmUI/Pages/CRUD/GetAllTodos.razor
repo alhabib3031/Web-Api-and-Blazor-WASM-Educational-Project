@@ -8,17 +8,77 @@
 
 @if (todos == null)
 {
-<p><em>Loading...</em></p>
+    <p><em>Loading...</em></p>
 }
 else
 {
-<ul>
-    @foreach (var todo in todos)
-    {
-    <li>@todo.Title - @todo.Description - @(todo.IsComplete ? "✅" : "❌")</li>
-    }
-</ul>
+    <div class="todo-container">
+        @foreach (var todo in todos)
+        {
+            <div class="todo-card">
+                <div class="todo-header">
+                    <h5>@todo.Title</h5>
+
+                    @if (todo.IsComplete)
+                    {
+                        <span class="badge complete">Completed</span>
+                    }
+                    else
+                    {
+                        <span class="badge pending">Pending</span>
+                    }
+                </div>
+
+                <p>
+                    @(string.IsNullOrWhiteSpace(todo.Description)
+                        ? "No Description"
+                        : todo.Description)
+                </p>
+
+                <small>
+                    📅 @todo.EndOfDate.ToString("dd MMM yyyy")
+                </small>
+            </div>
+        }
+    </div>
 }
+
+<style>
+.todo-container{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+    gap:20px;
+}
+
+.todo-card{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
+}
+
+.todo-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.badge{
+    padding:5px 10px;
+    border-radius:15px;
+    font-size:12px;
+}
+
+.complete{
+    background:#d4edda;
+    color:#155724;
+}
+
+.pending{
+    background:#fff3cd;
+    color:#856404;
+}
+</style>
 
 @code {
 private List<TodoDTO>? todos;
