@@ -1,16 +1,25 @@
 @page "/create-todo"
 
-@inject ITodoClientService _todoClientService 
+@inject ITodoClientService _todoClientService
 @inject NavigationManager NavigationManager
 @attribute [Authorize]
 
 <div class="container mt-4" style="max-width: 500px;">
     <h3>Create New Todo Item</h3>
 
-    @if (isSuccess)
+    @if (hasError)
+    {
+        <div class="alert alert-danger">
+            ❌ @errorMessage
+        </div>
+    }
+    else if (isSuccess)
     {
         <div class="alert alert-success">
             🎉 Todo item created successfully!
+        </div>
+        <div class="alert @(calendarSynced ? "alert-info" : "alert-warning")">
+            @(calendarSynced ? "✅" : "⚠️") @calendarMessage
         </div>
     }
 
@@ -33,11 +42,21 @@
             <label for="isComplete" class="form-check-label">Is Completed?</label>
         </div>
 
-        <div class="form-group mb-3">
-            <label for="endOfDate" class="form-label">End Of Date:</label>
-            <InputDate id="endOfDate" @bind-Value="newTodo.EndOfDate" Type="InputDateType.Date" class="form-control" />
+        <div class="mb-3">
+            <label class="form-label">تاريخ ووقت البداية</label>
+            <input type="datetime-local"
+                value="@newTodo.StartDateTime.ToString("yyyy-MM-ddTHH:mm")"
+                @onchange="@(e => newTodo.StartDateTime = DateTimeOffset.Parse(e.Value?.ToString() ?? string.Empty))"
+                class="form-control" />
         </div>
 
+        <div class="mb-3">
+            <label class="form-label">تاريخ ووقت النهاية</label>
+            <input type="datetime-local"
+                value="@newTodo.EndDateTime.ToString("yyyy-MM-ddTHH:mm")"
+                @onchange="@(e => newTodo.EndDateTime = DateTimeOffset.Parse(e.Value?.ToString() ?? string.Empty))"
+                class="form-control" />
+        </div>
 
         <button type="submit" class="btn btn-success" disabled="@isSubmitting">
             @if (isSubmitting)
@@ -54,30 +73,52 @@
 
 @code {
     private TodoDTO newTodo = new TodoDTO();
-    
+
     private bool isSubmitting = false;
     private bool isSuccess = false;
+    private bool hasError = false;
+    private string errorMessage = "";
+    private bool calendarSynced = false;
+    private string calendarMessage = "";
 
     private async Task HandleSubmit()
     {
         isSubmitting = true;
         isSuccess = false;
+        hasError = false;
+        errorMessage = "";
+        calendarSynced = false;
+        calendarMessage = "";
 
         try
         {
-            await _todoClientService.CreateAsync(newTodo);
-            
-            isSuccess = true;
-            
-            newTodo = new TodoDTO(); 
-            StateHasChanged();
+            var result = await _todoClientService.CreateAsync(newTodo);
 
-            await Task.Delay(2000);
-            NavigationManager.NavigateTo("/get-all-todos");
+            if (result.Success)
+            {
+                isSuccess = true;
+                calendarSynced = result.CalendarSynced;
+                calendarMessage = result.CalendarMessage;
+
+                newTodo = new TodoDTO();
+                StateHasChanged();
+
+                await Task.Delay(3000);
+                NavigationManager.NavigateTo("/get-all-todos");
+            }
+            else
+            {
+                hasError = true;
+                errorMessage = $"Failed. Please Try Again! ({result.CalendarMessage})";
+            }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error creating todo: {ex.Message}");
+            hasError = true;
+            errorMessage = $"Error: {ex.Message}";
+            await Task.Delay(3000);
+            NavigationManager.NavigateTo("/get-all-todos");
         }
         finally
         {

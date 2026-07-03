@@ -1,8 +1,10 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components.WebAssembly.Http;
 using WasmUI.DTOs;
 using WasmUI.Services.Interfaces;
+using static System.Net.WebRequestMethods;
 
 namespace WasmUI.Services;
 
@@ -30,13 +32,6 @@ public class TodoClientService : ITodoClientService
         }
     }
 
-    public async Task<List<TodoDTO>?> GetTodosAsync(CancellationToken cancellationToken = default)
-    {
-        await AttachTokenAsync();
-        var todos = await _http.GetFromJsonAsync<List<TodoDTO>>(Endpoint, cancellationToken) ?? [];
-        return todos;
-    }
-
     public async Task<TodoDTO?> GetTodosAsync(int id, CancellationToken cancellationToken = default)
     {
         await AttachTokenAsync();
@@ -44,7 +39,17 @@ public class TodoClientService : ITodoClientService
         return todo;
     }
 
-    public async Task CreateAsync(TodoDTO dto, CancellationToken cancellationToken = default)
+    public async Task<List<TodoDTO>?> GetTodosAsync(CancellationToken cancellationToken = default)
+    {
+        await AttachTokenAsync();
+        var todos = await _http.GetFromJsonAsync<List<TodoDTO>>(Endpoint, cancellationToken) ?? [];
+        return todos;
+    }
+
+    public async Task<(bool Success, bool CalendarSynced, string CalendarMessage)> CreateAsync(
+        TodoDTO dto,
+        CancellationToken cancellationToken = default
+    )
     {
         await AttachTokenAsync();
         using HttpResponseMessage response = await _http.PostAsJsonAsync(
@@ -52,7 +57,32 @@ public class TodoClientService : ITodoClientService
             dto,
             cancellationToken
         );
-        response.EnsureSuccessStatusCode();
+
+        bool success = response.IsSuccessStatusCode;
+        bool calendarSynced = false;
+        string calendarMessage = "No connection with Google Calendar";
+
+        if (success)
+        {
+            calendarSynced =
+                response.Headers.TryGetValues("X-Calendar-Sync", out var syncValues)
+                && syncValues.FirstOrDefault() == "synced";
+
+            if (response.Headers.TryGetValues("X-Calendar-Message", out var msgValues))
+            {
+                calendarMessage = msgValues.FirstOrDefault() ?? calendarMessage;
+            }
+        }
+        else
+        {
+            var errorBody = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>(cancellationToken: cancellationToken);
+            if (errorBody?.TryGetValue("error", out var serverError) == true)
+            {
+                calendarMessage = serverError;
+            }
+        }
+
+        return (success, calendarSynced, calendarMessage);
     }
 
     public async Task UpdateAsync(
@@ -78,5 +108,26 @@ public class TodoClientService : ITodoClientService
             cancellationToken
         );
         response.EnsureSuccessStatusCode();
+    }
+
+    public async Task<List<CalendarEventDto>?> GetUserCalendar(
+        CancellationToken cancellationToken = default
+    )
+    {
+        try
+        {
+            await AttachTokenAsync();
+
+            var events = await _http.GetFromJsonAsync<List<CalendarEventDto>>(
+                "api/calendar",
+                cancellationToken
+            );
+            return events;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error While Gathering the Calendar: {ex.Message}");
+            return null;
+        }
     }
 }

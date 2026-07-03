@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using TaskFlow.Entity;
 using TaskFlow.Services.Interfaces;
 
@@ -8,10 +7,6 @@ public static class TaskEndPoints
 {
     public static WebApplication MapTaskEndpoints(this WebApplication app)
     {
-        // old code: RequireAuthorization was only on GetAll and Create endpoints.
-        // GetById, Update, UpdatePatch, Delete had NO authorization check at all.
-        // The problem: Any unauthenticated request could read, modify, or delete any todo.
-        // Fix: Apply RequireAuthorization to the entire group so ALL task endpoints require auth.
         var group = app.MapGroup("/task").RequireAuthorization();
 
         group.MapGet(
@@ -34,30 +29,36 @@ public static class TaskEndPoints
 
         group.MapPost(
             "",
-            async (Todo item, ITaskService service) =>
-            {
-                await service.Create(item);
-
-                return Results.Created($"/task/{item.Id}", item);
-            }
+            async (
+                Todo todo,
+                ITaskService service,
+                IGoogleCalendarService googleCalendarService,
+                ICurrentUserService currentUserService,
+                HttpContext context
+            ) =>
+                await CreateTodoAndAddToCalendar(
+                    todo,
+                    service,
+                    googleCalendarService,
+                    currentUserService,
+                    context
+                )
         );
 
         group.MapPut(
             "/{id}",
-            async (int id, Todo item, ITaskService service) =>
+            async (int id, Todo todo, ITaskService service) =>
             {
-                await service.Update(id, item);
-
+                await service.Update(id, todo);
                 return Results.NoContent();
             }
         );
 
         group.MapPatch(
             "/{id}",
-            async (int id, Todo item, ITaskService service) =>
+            async (int id, Todo todo, ITaskService service) =>
             {
-                await service.UpdatePatch(id, item);
-
+                await service.UpdatePatch(id, todo);
                 return Results.NoContent();
             }
         );
@@ -67,11 +68,70 @@ public static class TaskEndPoints
             async (int id, ITaskService service) =>
             {
                 var deleted = await service.Delete(id);
-
                 return deleted ? Results.NoContent() : Results.NotFound();
             }
         );
 
         return app;
+    }
+
+    public static async Task<IResult> CreateTodoAndAddToCalendar(
+        Todo todo,
+        ITaskService service,
+        IGoogleCalendarService googleCalendarService,
+        ICurrentUserService currentUserService,
+        HttpContext context
+    )
+    {
+        try
+        {
+            todo.StartDateTime = todo.StartDateTime.ToUniversalTime();
+            todo.EndDateTime = todo.EndDateTime.ToUniversalTime();
+
+            await service.Create(todo);
+
+            var userId = currentUserService.UserId;
+            if (userId.HasValue)
+            {
+                var (success, message) = await googleCalendarService.AddEventAsync(
+                    userId.Value,
+                    todo.Title,
+                    todo.Description ?? "",
+                    todo.StartDateTime,
+                    todo.EndDateTime
+                );
+
+                context.Response.Headers.Append("X-Calendar-Sync", success ? "synced" : "failed");
+                context.Response.Headers.Append("X-Calendar-Message", message);
+            }
+            else
+            {
+                context.Response.Headers.Append("X-Calendar-Sync", "failed");
+                context.Response.Headers.Append(
+                    "X-Calendar-Message",
+                    "No connection with Google Calendar"
+                );
+            }
+
+            return Results.Created(
+                $"/task/{todo.Id}",
+                new
+                {
+                    todo.Id,
+                    todo.Title,
+                    todo.Description,
+                    todo.StartDateTime,
+                    todo.EndDateTime,
+                    todo.IsComplete,
+                }
+            );
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[CRITICAL POST TASK ERROR]: {ex}");
+            context.Response.Headers.Append("X-Calendar-Sync", "failed");
+            context.Response.Headers.Append("X-Calendar-Message", ex.Message);
+            return Results.Json(new { error = ex.Message }, statusCode: 500);
+        }
     }
 }

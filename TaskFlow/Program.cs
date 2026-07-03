@@ -22,6 +22,7 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddScoped<IGoogleCalendarService, GoogleCalendarService>();
 
 builder.Services.AddSwaggerGen();
 
@@ -36,7 +37,8 @@ builder.Services.AddCors(options =>
                 .WithOrigins("http://localhost:5047")
                 .AllowAnyHeader()
                 .AllowAnyMethod()
-                .AllowCredentials();
+                .AllowCredentials()
+                .WithExposedHeaders("X-Calendar-Sync", "X-Calendar-Message");
         }
     );
 });
@@ -74,6 +76,13 @@ builder
     {
         options.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
         options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+        options.Scope.Add("https://www.googleapis.com/auth/calendar.events");
+        options.SaveTokens = true;
+        options.Events.OnRedirectToAuthorizationEndpoint = context =>
+        {
+            context.Response.Redirect(context.RedirectUri + "&access_type=offline&prompt=consent");
+            return Task.CompletedTask;
+        };
     });
 
 var app = builder.Build();
@@ -95,5 +104,6 @@ app.UseAuthorization();
 
 app.MapTaskEndpoints();
 app.MapAuthEndpoints();
+app.MapCalendarEndpoints();
 
 app.Run();

@@ -1,0 +1,46 @@
+@page "/my-calendar"
+@attribute [Authorize] 
+@inject ITodoClientService service
+
+<h3 class="mb-4">📅 مواعيدي القادمة من Google Calendar</h3>
+
+@if (events == null)
+{
+    <div class="alert alert-info">جاري تحميل المواعيد من حساب جوجل الخاص بك...</div>
+}
+else if (!events.Any())
+{
+    <div class="alert alert-warning">لا توجد مواعيد قادمة في تقويمك حالياً.</div>
+}
+else
+{
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>عنوان الموعد</th>
+                <th>وقت البداية</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ev in events)
+            {
+                <tr>
+                    <td><strong>@ev.Title</strong></td>
+                    <td>@ev.StartTime.ToString("dd/MM/yyyy hh:mm tt")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+
+
+    private List<CalendarEventDto>? events;
+
+    protected override async Task OnInitializedAsync()
+    {
+        events = await service.GetUserCalendar();
+    }
+
+}

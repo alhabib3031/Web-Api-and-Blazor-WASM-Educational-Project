@@ -5,7 +5,9 @@ public class Todo
     public int Id { get; private set; }
     public string Title { get; set; } = string.Empty;
     public string? Description { get; set; }
-    public DateTime EndOfDate { get; set; }
+    public DateTimeOffset StartDateTime { get; set; }
+    public DateTimeOffset EndDateTime { get; set; }
+
     public bool IsComplete { get; set; }
 
     public int UserId { get; set; }
@@ -15,18 +17,26 @@ public class Todo
     public Todo() { }
 
     // Id is auto Genarated in DB
-    private Todo(string Title, string? Description, DateTime EndOfDate, bool IsComplete)
+    private Todo(
+        string Title,
+        string? Description,
+        DateTimeOffset StartDateTime,
+        DateTimeOffset EndDateTime,
+        bool IsComplete
+    )
     {
         this.Title = Title;
         this.Description = Description;
-        this.EndOfDate = EndOfDate;
+        this.StartDateTime = StartDateTime;
+        this.EndDateTime = EndDateTime;
         this.IsComplete = IsComplete;
     }
 
     internal static Todo Create(
         string title,
         string? description,
-        DateTime endOfDate,
+        DateTimeOffset StartDateTime,
+        DateTimeOffset EndDateTime,
         bool isComplete
     )
     {
@@ -36,7 +46,8 @@ public class Todo
         return new Todo(
             Title: title,
             Description: description,
-            EndOfDate: endOfDate,
+            StartDateTime: StartDateTime,
+            EndDateTime: EndDateTime,
             IsComplete: isComplete
         );
     }

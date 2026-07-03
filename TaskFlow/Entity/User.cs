@@ -6,6 +6,8 @@ public class User
     public string Email { get; private set; } = string.Empty;
     public string FullName { get; set; } = string.Empty;
     public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
+    public string? GoogleAccessToken { get; set; }
+    public string? GoogleRefreshToken { get; set; }
 
     public List<Todo>? Todos { get; private set; }
 
@@ -28,17 +30,15 @@ public class User
     public Todo CreateUserTodo(
         string title,
         string? description,
-        DateTime endOfDate,
+        DateTimeOffset StartDateTime,
+        DateTimeOffset EndDateTime,
         bool isComplete
     )
     {
         if (string.IsNullOrWhiteSpace(description))
             description = "Not Assigned Value Yet";
 
-        if (endOfDate <= DateTime.UtcNow)
-            throw new ArgumentException("End date must be in the future.");
-
-        var todo = Todo.Create(title, description, endOfDate, isComplete);
+        var todo = Todo.Create(title, description, StartDateTime, EndDateTime, isComplete);
 
         Todos ??= [];
         Todos.Add(todo);

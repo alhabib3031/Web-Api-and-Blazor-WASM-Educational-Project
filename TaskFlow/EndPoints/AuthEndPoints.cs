@@ -48,15 +48,22 @@ public static class AuthEndpoints
                 if (string.IsNullOrEmpty(email))
                     return Results.BadRequest("Google dose't that mail");
 
+                var accessToken = result.Properties?.GetTokenValue("access_token");
+                var refreshToken = result.Properties?.GetTokenValue("refresh_token");
+
                 var user = await db.Users.FirstOrDefaultAsync(u => u.Email == email);
 
                 if (user == null)
                 {
                     user = User.Create(Email: email, FullName: name ?? "Google User");
-
                     db.Users.Add(user);
-                    await db.SaveChangesAsync();
                 }
+
+                if (accessToken is not null)
+                    user.GoogleAccessToken = accessToken;
+                if (refreshToken is not null)
+                    user.GoogleRefreshToken = refreshToken;
+                await db.SaveChangesAsync();
 
                 var userClaims = new[]
                 {
