@@ -2,17 +2,17 @@
 @*NotFoundPage="typeof(Pages.NotFound)"*@
 <Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
-        <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
-            <NotAuthorized>
-                <NotAuthorizedMessegeComponent />
-            </NotAuthorized>
-        </AuthorizeRouteView>
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+      <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(CustomLayout)">
+        <NotAuthorized>
+          <NotAuthorizedMessegeComponent />
+        </NotAuthorized>
+      </AuthorizeRouteView>
+      <FocusOnNavigate RouteData="@routeData" Selector="h1" />
     </Found>
     <NotFound>
-        <LayoutView Layout="@typeof(MainLayout)">
-            <NotFoundMessegeComponent />
-        </LayoutView>
+      <LayoutView Layout="@typeof(CustomLayout)">
+        <NotFoundMessegeComponent />
+      </LayoutView>
     </NotFound>
-</Router>
+  </Router>
 </CascadingAuthenticationState>

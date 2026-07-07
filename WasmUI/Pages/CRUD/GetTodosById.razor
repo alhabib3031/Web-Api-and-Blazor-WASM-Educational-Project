@@ -4,16 +4,16 @@
 @attribute [Authorize]
 
 
-<div class="container mt-4">
-    <h3> Get By (ID)</h3>
+<div class="mx-auto mt-4">
+    <h3 class="text-xl font-bold text-gray-900 dark:text-white"> Get By (ID)</h3>
     
-    <form @onsubmit="Submit">
-        <div class="form-group mb-3">
-            <label for="userId">Enter an (ID):</label>
-            <input type="number" id="userId" name="id" @bind="targetId" class="form-control" placeholder="Ex: 5" required />
+    <form @onsubmit="Submit" class="mt-4">
+        <div class="mb-3">
+            <label for="userId" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Enter an (ID):</label>
+            <input type="number" id="userId" name="id" @bind="targetId" class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 sm:text-sm" placeholder="Ex: 5" required />
         </div>
         
-        <button type="submit" class="btn btn-primary">Get</button>
+        <button type="submit" class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 transition-colors">Get</button>
     </form>
 
     <hr />

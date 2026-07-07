@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="bg-white dark:bg-gray-950 scheme-light dark:scheme-dark">
 
 <head>
     <meta charset="utf-8" />
@@ -7,20 +7,34 @@
     <title>WasmUI</title>
     <base href="/" />
     <link rel="preload" id="webassembly" />
-    <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <script>
+        document.documentElement.classList.toggle('dark',
+            localStorage.getItem('theme') === 'dark' ||
+            (!localStorage.getItem('theme') && matchMedia('(prefers-color-scheme:dark)').matches));
+    </script>
     <link rel="stylesheet" href="css/app.css" />
-    <link rel="icon" type="image/png" href="favicon.png" />
-    <link href="WasmUI.styles.css" rel="stylesheet" />
+    <style type="text/tailwindcss">
+        @custom-variant dark (&:where(.dark, .dark *));
+    </style>
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script type="importmap"></script>
 </head>
 
-<body>
+<body class="h-full">
+
     <div id="app">
-        <svg class="loading-progress">
-            <circle r="40%" cx="50%" cy="50%" />
-            <circle r="40%" cx="50%" cy="50%" />
-        </svg>
-        <div class="loading-progress-text"></div>
+        <div class="fixed top-0 left-0 right-0 h-1 bg-indigo-500 transition-all duration-200 ease-out"
+            style="width: var(--blazor-load-percentage, 0%); shadow: 0 1px 10px rgba(99, 102, 241, 0.5);">
+        </div>
+
+        <div class="flex flex-col items-center justify-center min-h-screen bg-gray-950 text-white">
+            <div class="animate-pulse space-y-2 text-center">
+                <h2 class="text-xl font-medium tracking-wide">Task Flow</h2>
+                <p class="text-sm text-gray-400">Loading...</p>
+            </div>
+        </div>
     </div>
 
     <div id="blazor-error-ui">
@@ -28,6 +42,8 @@
         <a href="." class="reload">Reload</a>
         <span class="dismiss">🗙</span>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindplus/elements@1" type="module"></script>
+    <script src="js/theme.js"></script>
     <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>
 </body>
 
